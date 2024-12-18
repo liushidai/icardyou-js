@@ -60,22 +60,26 @@
 
         // 为按钮1添加点击事件
         exportExcel.click(function () {
-            getTableData();
+            // 获取表格数据
+            var rowDatas= getTableData();
+            // 调用接口导出
+            getAddressAndExportExcel(rowDatas);
         });
         // 为按钮2添加点击事件
         batchVerify.click(function () {
-            alert('未完工！');
+            // 获取表格数据
+            var rowDatas= getTableData();
+            // 调用接口确认
+            batchConfirmCard(rowDatas);
         });
 
         // 将按钮添加到首行的最后一个单元格中
         var lastTd = firstRow.find('th:last');
         lastTd.append(exportExcel).append(batchVerify);
     }
-
     // 获取表格数据
     function getTableData() {
         let rowDatas = [];
-        const resultArray = [];
         $("tbody tr:not(:first)").each(function() {
             var checkbox = $(this).find('input[type="checkbox"]');
             if (checkbox.is(':checked')) {
@@ -92,16 +96,50 @@
             alert('至少勾选一行数据！');
             return;
         }
+        return rowDatas;
+    }
+    // 获取表格数据
+    function getAddressAndExportExcel(rowDatas) {
+        const resultArray = [];
+        if (rowDatas.length === 0) {
+            alert('至少勾选一行数据！');
+            return;
+        }
         // 3.请求接口
         rowDatas.forEach(function (param) {
             getAddress(param.id, function (response) {
                 resultArray.push({'no':param.no,'id':param.id,'status':param.status,'zip':response.zip,'realName': response.realName,'address':response.address});
                 if (resultArray.length === rowDatas.length) {
+                    // 排序
+                    resultArray.sort((a, b) => a.id - b.id);
                     console.log("所有数据获取完成，结果:", resultArray);
                     // 导出数据
                     download(resultArray)
                 }
             });
+        });
+    }
+    // 批量调用确认接口
+    function batchConfirmCard(rowDatas) {
+        const deferredArray = [];
+        rowDatas.forEach((param) => {
+            const dfd = $.Deferred();
+            confirmCard(param.id).done(() => {
+                dfd.resolve();
+            }).fail(() => {
+                dfd.reject();
+            });
+            deferredArray.push(dfd.promise());
+        });
+
+        $.when.apply($, deferredArray).done(() => {
+            console.log('所有接口调用成功');
+            alert('确认寄出成功-点击确认，刷新页面');
+            location.reload();
+        }).fail(() => {
+            console.error('有接口调用出现错误');
+            alert('存在错误-点击确认，刷新页面');
+            location.reload();
         });
     }
 
@@ -113,6 +151,26 @@
             data:{id:id},
             success:function(data){
                 callback(data);
+            }
+        });
+    }
+    // 确认寄出接口
+    function confirmCard(id){
+        return $.ajax({
+            type:"POST",
+            url:"/sendpostcard/confirmSendCard",
+            data:{id:id},
+            success:function(data){
+                console.log("id:"+id+";data:" +data);
+                // 假设根据返回数据中某个字段判断是否真正成功，这里只是示例
+                if (data == 1) {
+                    // 进行后续操作
+                } else {
+                    console.error('操作未成功');
+                }
+            },
+            error:function(xhr, status, error) {
+                console.error('接口调用出现错误：', error);
             }
         });
     }
