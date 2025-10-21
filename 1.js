@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         icardyou-batch
 // @namespace    https://github.com/liushidai/icardyou-js
-// @version      2025-10-21-1.0
+// @version      2025-10-21-1.1
 // @description  批量导出为excel、pdf;批量确认
 // @author       liushidai
 // @match        https://icardyou.icu/sendpostcard/myPostCard/1*
