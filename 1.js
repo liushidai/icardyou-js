@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         icardyou-batch
-// @namespace    http://tampermonkey.net/
+// @namespace    https://github.com/liushidai/icardyou-js
 // @version      2025-10-21-1.0
 // @description  批量导出为excel、pdf;批量确认
 // @author       liushidai
