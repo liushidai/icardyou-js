@@ -15,6 +15,7 @@
 // @require      https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js
 // @run-at       document-body
 // ==/UserScript==
+
 (function () {
     'use strict';
     GM_log("Hello World");
